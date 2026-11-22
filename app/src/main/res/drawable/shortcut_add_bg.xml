@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- "添加"按钮圆角矩形：淡灰，与具体快捷方式的白色卡片区分 -->
+    <solid android:color="@color/header_light" />
+    <corners android:radius="14dp" />
+</shape>

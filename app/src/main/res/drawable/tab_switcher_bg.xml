@@ -1,0 +1,11 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 接近主页底栏的浅蓝白色，90% 不透明，整块（含导航栏区）颜色统一且按钮可透出 -->
+    <solid android:color="#E6F1F5FB" />
+    <!-- 仅顶部圆角，底部延伸到屏幕边缘与导航栏无缝衔接 -->
+    <corners
+        android:topLeftRadius="24dp"
+        android:topRightRadius="24dp"
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp" />
+</shape>

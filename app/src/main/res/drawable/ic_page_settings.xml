@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 上滑块：横线在圆处断开，圆中心 (15,8) -->
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M3,8 H11.5" />
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M18.5,8 H21" />
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:pathData="M15,8 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+    <!-- 下滑块：圆中心 (9,16) -->
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M3,16 H5.5" />
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M12.5,16 H21" />
+    <path
+        android:strokeColor="@color/icon"
+        android:strokeWidth="1.8"
+        android:pathData="M9,16 m-3,0 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0" />
+</vector>

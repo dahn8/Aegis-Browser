@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 深色版"添加"按钮圆角矩形 -->
+    <solid android:color="@color/bg_dark" />
+    <corners android:radius="14dp" />
+</shape>

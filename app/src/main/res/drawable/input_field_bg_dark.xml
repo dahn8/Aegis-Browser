@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 深色输入框：背景深色、圆角 -->
+    <solid android:color="@color/bg_dark" />
+    <corners android:radius="10dp" />
+</shape>

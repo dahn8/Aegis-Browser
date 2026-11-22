@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 快捷方式圆角矩形卡片：白色，大圆角接近 Edge 风格 -->
+    <solid android:color="@color/bg_light" />
+    <corners android:radius="14dp" />
+</shape>
