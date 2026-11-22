@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_hint">Place the QR code inside the frame to scan automatically</string>
+    <string name="scan_need_camera">Camera permission is required to scan</string>
+    <string name="scan_back">Back</string>
+</resources>

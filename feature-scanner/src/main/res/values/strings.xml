@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="scan_hint">将二维码放入框内即可自动识别</string>
+    <string name="scan_need_camera">需要相机权限才能扫码</string>
+    <string name="scan_back">返回</string>
+</resources>

@@ -1,0 +1,60 @@
+package dev.aegis.browser.privacy.data
+
+import android.content.Context
+
+/**
+ * 隐私设置存储：退出自动清除、HTTPS-Only 开关，
+ * 以及禁用 JavaScript 的站点集合。与拦截器共用同一 prefs 文件。
+ */
+class PrivacySettingsStore(context: Context) {
+
+    private val appContext = context.applicationContext
+    private val prefs = appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    var clearOnExit: Boolean
+        get() = prefs.getBoolean(KEY_CLEAR_ON_EXIT, DEFAULT_CLEAR_ON_EXIT)
+        set(value) {
+            prefs.edit().putBoolean(KEY_CLEAR_ON_EXIT, value).apply()
+        }
+
+    var httpsOnly: Boolean
+        get() = prefs.getBoolean(KEY_HTTPS_ONLY, DEFAULT_HTTPS_ONLY)
+        set(value) {
+            prefs.edit().putBoolean(KEY_HTTPS_ONLY, value).apply()
+        }
+
+    var trackingStrip: Boolean
+        get() = prefs.getBoolean(KEY_TRACKING_STRIP, DEFAULT_TRACKING_STRIP)
+        set(value) {
+            prefs.edit().putBoolean(KEY_TRACKING_STRIP, value).apply()
+        }
+
+    fun jsBlockedHosts(): Set<String> =
+        prefs.getStringSet(KEY_JS_BLOCKED, emptySet())?.toSet() ?: emptySet()
+
+    fun isJsBlocked(host: String): Boolean =
+        jsBlockedHosts().contains(host.lowercase())
+
+    fun blockJs(host: String) {
+        val updated = jsBlockedHosts().toMutableSet().apply { add(host.lowercase()) }
+        prefs.edit().putStringSet(KEY_JS_BLOCKED, updated).apply()
+    }
+
+    fun unblockJs(host: String) {
+        val updated = jsBlockedHosts().toMutableSet().apply { remove(host.lowercase()) }
+        prefs.edit().putStringSet(KEY_JS_BLOCKED, updated).apply()
+    }
+
+    companion object {
+        private const val PREFS_NAME = "aegis_privacy"
+
+        private const val KEY_CLEAR_ON_EXIT = "clear_on_exit"
+        private const val KEY_HTTPS_ONLY = "https_only"
+        private const val KEY_JS_BLOCKED = "js_blocked"
+        private const val KEY_TRACKING_STRIP = "tracking_strip"
+
+        private const val DEFAULT_CLEAR_ON_EXIT = false
+        private const val DEFAULT_HTTPS_ONLY = false
+        private const val DEFAULT_TRACKING_STRIP = true
+    }
+}
