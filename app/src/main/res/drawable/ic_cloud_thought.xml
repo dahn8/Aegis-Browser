@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="120dp"
+    android:height="120dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+
+    <!-- 云朵描边（坐标已直接展开，不使用 group） -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#202124"
+        android:strokeWidth="1.4"
+        android:strokeLineJoin="round"
+        android:pathData="M23.35,12.04C22.67,8.59,19.64,6,16,6C13.11,6,10.6,7.64,9.35,10.04C6.34,10.36,4,12.91,4,16C4,19.31,6.69,22,10,22H23C25.76,22,28,19.76,28,17C28,14.36,25.95,12.22,23.35,12.04Z" />
+
+    <!-- 思考气泡：两个圆点 -->
+    <path
+        android:fillColor="#202124"
+        android:pathData="M7.3 25.2 A1.7 1.7 0 1 0 10.7 25.2 A1.7 1.7 0 1 0 7.3 25.2 Z" />
+    <path
+        android:fillColor="#202124"
+        android:pathData="M3.8 28.6 A1.2 1.2 0 1 0 6.2 28.6 A1.2 1.2 0 1 0 3.8 28.6 Z" />
+</vector>

@@ -1,0 +1,6 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- 浅灰而非纯白，避免与浅色页面背景重合 -->
+    <solid android:color="@color/header_light" />
+    <corners android:radius="20dp" />
+</shape>

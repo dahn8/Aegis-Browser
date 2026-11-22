@@ -1,0 +1,10 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <!-- angle=90：从底部(start)向上(end)渐变，蓝色非常浅、若隐若现 -->
+    <gradient
+        android:angle="90"
+        android:startColor="#E1EAF7"
+        android:centerColor="#ECF1F9"
+        android:endColor="#F7F8FA"
+        android:type="linear" />
+</shape>
