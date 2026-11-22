@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 天气在左上角：从锚点左上角向外展开 -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/decelerate_interpolator">
+    <scale
+        android:duration="190"
+        android:fromXScale="0.86"
+        android:fromYScale="0.86"
+        android:pivotX="0%"
+        android:pivotY="0%"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
+    <alpha
+        android:duration="150"
+        android:fromAlpha="0"
+        android:toAlpha="1.0" />
+</set>

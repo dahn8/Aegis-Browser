@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="4dp"
+    android:paddingVertical="6dp">
+
+    <!-- 包裹层：比卡片略大，容纳右上角探出的删除叉，叉号不被卡片圆角裁剪 -->
+    <FrameLayout
+        android:layout_width="52dp"
+        android:layout_height="52dp">
+
+    <!-- 圆角矩形卡片：背景在代码中按 快捷方式/添加 与深浅色切换；clipToOutline 裁剪子 View 到圆角 -->
+    <FrameLayout
+        android:id="@+id/shortcut_card"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="center"
+        android:background="@drawable/shortcut_card_bg">
+
+        <!-- 图标铺满整张卡片，centerCrop 填满无留白 -->
+        <ImageView
+            android:id="@+id/shortcut_icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+        <!-- favicon 失败时的首字母占位，铺满卡片，文字颜色在代码中按标题取彩色 -->
+        <TextView
+            android:id="@+id/shortcut_initial"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:textColor="@color/primary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ImageView
+            android:id="@+id/shortcut_add"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_add"
+            android:tint="?android:attr/textColorSecondary"
+            android:visibility="gone" />
+
+    </FrameLayout>
+
+        <!-- 编辑模式删除叉：白底圆 + 深色叉，探出卡片右上角，带轻微阴影 -->
+        <ImageView
+            android:id="@+id/shortcut_delete"
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="top|end"
+            android:layout_marginTop="1dp"
+            android:layout_marginEnd="1dp"
+            android:background="@drawable/bg_shortcut_delete"
+            android:elevation="4dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_close"
+            android:tint="#FF3A3F45"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/shortcut_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxLines="1"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textSize="12sp" />
+</LinearLayout>

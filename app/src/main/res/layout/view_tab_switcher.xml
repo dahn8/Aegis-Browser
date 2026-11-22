@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 标签切换面板：全屏淡遮罩，底部半透明卡片从导航栏上方延展 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tab_switcher_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#22000000">
+
+    <LinearLayout
+        android:id="@+id/tab_switcher_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/tab_switcher_bg"
+        android:orientation="vertical"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingTop="14dp"
+        android:paddingBottom="56dp">
+
+        <!-- 标签行容器：代码动态填充 -->
+        <LinearLayout
+            android:id="@+id/tab_list_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <!-- 新建标签：加号 -->
+        <FrameLayout
+            android:id="@+id/button_add_in_switcher"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:clickable="true">
+
+            <ImageView
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_add"
+                android:tint="?android:attr/textColorSecondary" />
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

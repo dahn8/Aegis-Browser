@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 从右上角向外展开：缩放 + 淡入，pivot 固定在右上角 -->
+<set xmlns:android="http://schemas.android.com/apk/res/android"
+    android:interpolator="@android:anim/decelerate_interpolator">
+    <scale
+        android:duration="200"
+        android:fromXScale="0.75"
+        android:fromYScale="0.75"
+        android:pivotX="100%"
+        android:pivotY="0%"
+        android:toXScale="1.0"
+        android:toYScale="1.0" />
+    <alpha
+        android:duration="160"
+        android:fromAlpha="0"
+        android:toAlpha="1.0" />
+</set>

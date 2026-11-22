@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Google Chrome 风格主菜单：底部/右侧悬浮 Material 3 圆角卡片，顶部快捷图标条 + 垂直列表 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_menu_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/menu_scrim"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#40000000" />
+
+    <LinearLayout
+        android:id="@+id/menu_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginBottom="66dp"
+        android:background="@drawable/bg_m3_card"
+        android:clipChildren="true"
+        android:clipToPadding="true"
+        android:elevation="16dp"
+        android:orientation="vertical"
+        android:paddingTop="6dp"
+        android:paddingBottom="10dp">
+
+        <!-- 顶部拖拽关闭条 -->
+        <LinearLayout
+            android:id="@+id/menu_drag_area"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="36dp"
+                android:layout_height="4dp"
+                android:background="@drawable/drag_handle_bg" />
+        </LinearLayout>
+
+        <!-- 顶部快捷操作栏：书签、历史、下载、刷新、设置（Chrome 风格色调胶囊） -->
+        <LinearLayout
+            android:id="@+id/menu_top_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="6dp"
+            android:orientation="horizontal" />
+
+        <View
+            android:id="@+id/menu_divider"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/m3_divider" />
+
+        <!-- 垂直功能列表：支持自定义排序与隐藏 -->
+        <dev.aegis.browser.ui.MaxHeightScrollView
+            android:id="@+id/menu_scroll"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:id="@+id/menu_action_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </dev.aegis.browser.ui.MaxHeightScrollView>
+    </LinearLayout>
+</FrameLayout>

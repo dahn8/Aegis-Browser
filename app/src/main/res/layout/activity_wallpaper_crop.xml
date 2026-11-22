@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 自定义壁纸：全屏预览（画面直接铺到状态栏与导航栏），返回箭头与底部按钮悬浮在画面上。
+     预览区域即最终生效区域，所见即主页实际显示效果。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#FF000000">
+
+    <FrameLayout
+        android:id="@+id/crop_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FF000000"
+        android:clipChildren="true" />
+
+    <!-- 顶部遮罩 + 返回 -->
+    <LinearLayout
+        android:id="@+id/crop_top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:background="@drawable/bg_crop_scrim_top"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="16dp">
+
+        <ImageButton
+            android:id="@+id/crop_back"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:background="@null"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_back"
+            android:tint="#FFFFFFFF" />
+
+        <TextView
+            android:id="@+id/crop_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="2dp"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/wallpaper_adjust"
+            android:textColor="#FFFFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 底部遮罩 + 取消 / 完成 -->
+    <LinearLayout
+        android:id="@+id/crop_bottom_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@drawable/bg_crop_scrim_bottom"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="10dp">
+
+        <TextView
+            android:id="@+id/crop_cancel"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textColor="#CCFFFFFF"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/crop_confirm"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_crop_confirm"
+            android:gravity="center"
+            android:text="@string/done"
+            android:textColor="#FFFFFFFF"
+            android:textSize="16sp" />
+    </LinearLayout>
+</FrameLayout>

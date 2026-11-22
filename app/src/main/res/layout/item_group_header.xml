@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 列表分组标题（刚才 / 今天 / 更早 / 昨天…） -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/group_title"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="18dp"
+    android:paddingTop="16dp"
+    android:paddingBottom="6dp"
+    android:textColor="?android:attr/textColorSecondary"
+    android:textSize="13sp" />

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 浏览器子页面通用快捷工具栏：书签 / 历史 / 下载 / 关闭 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp">
+
+        <ImageButton
+            android:id="@+id/toolbar_close"
+            android:background="@null"
+            android:layout_width="40dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="4dp"
+            android:contentDescription="@string/back"
+            android:src="@drawable/ic_chevron_left"
+            android:tint="?android:attr/textColorPrimary" />
+
+        <LinearLayout
+            android:id="@+id/tab_bookmarks"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+                android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/icon_bookmarks"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_star"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <View
+                android:id="@+id/ind_bookmarks"
+                android:layout_width="18dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_indicator_bar"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_history"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+                android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/icon_history"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_history"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <View
+                android:id="@+id/ind_history"
+                android:layout_width="18dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_indicator_bar"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tab_downloads"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+                android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/icon_downloads"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:src="@drawable/ic_download"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <View
+                android:id="@+id/ind_downloads"
+                android:layout_width="18dp"
+                android:layout_height="3dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/bg_indicator_bar"
+                android:visibility="invisible" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?android:attr/listDivider" />
+</LinearLayout>

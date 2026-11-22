@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 根用 FrameLayout 分层：最底层全屏渐变，上层为固定内容列，保证状态栏/内容/导航渐变一体 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false">
+
+    <!-- 全屏渐变背景：仅主页态显示，独立于内容列，覆盖状态栏、内容区与导航栏 -->
+    <View
+        android:id="@+id/home_gradient"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/home_bg_gradient"
+        android:visibility="gone" />
+
+    <!-- 自定义主页背景：用户从相册选择，铺满全屏，盖住默认渐变；无自定义时隐藏 -->
+    <ImageView
+        android:id="@+id/home_bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@string/home_background"
+        android:scaleType="centerCrop"
+        android:visibility="gone" />
+
+    <!-- 固定内容列：顶部工具栏、中间网页区、底部导航垂直排列，位置恒定，不随滚动隐藏 -->
+    <LinearLayout
+        android:id="@+id/content_column"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+
+        <!-- 顶部占位：高度由代码设置，主页态=状态栏高，网页态=状态栏高+地址栏高 -->
+        <View
+            android:id="@+id/top_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <!-- 网页容器：占据顶部与底部之间的全部空间，WebView match_parent 填入，位置固定 -->
+        <FrameLayout
+            android:id="@+id/web_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:clipChildren="false"
+            android:clipToPadding="false">
+
+            <!-- 主页内容：搜索胶囊与快捷方式；elevation 浮在 WebView 之上，translationY 整体下移 -->
+            <LinearLayout
+                android:id="@+id/home_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:elevation="8dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <!-- 默认壁纸时的浏览器标识：搜索胶囊上方，只保留图标主体 -->
+                <ImageView
+                    android:id="@+id/home_logo"
+                    android:layout_width="150dp"
+                    android:layout_height="150dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="10dp"
+                    android:contentDescription="@null"
+                    android:elevation="8dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_aegis_mark" />
+
+
+                <!-- Edge InPrivate 风格无痕主页标识卡片（仅无痕主页显示） -->
+                <LinearLayout
+                    android:id="@+id/inprivate_card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="28dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@drawable/incognito_banner_bg"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="16dp"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:contentDescription="@null"
+                            android:src="@drawable/ic_incognito_on"
+                            android:tint="#8AB4F8" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/inprivate_title"
+                            android:textColor="#E8EAED"
+                            android:textSize="15sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:gravity="center"
+                        android:lineSpacingMultiplier="1.25"
+                        android:text="@string/inprivate_desc"
+                        android:textColor="#9AA0A6"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- 主页搜索胶囊 -->
+                <LinearLayout
+                    android:id="@+id/home_pill"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="24dp"
+                    android:background="@drawable/search_pill_bg"
+                    android:clickable="true"
+                    android:elevation="8dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    android:paddingVertical="4dp">
+
+                    <!-- 左：搜索引擎入口，固定放大镜图标，不随引擎切换 -->
+                    <ImageButton
+                        android:id="@+id/button_home_engine"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@null"
+                        android:contentDescription="@string/search_settings"
+                        android:src="@drawable/ic_search"
+                        android:tint="?android:attr/textColorSecondary" />
+
+                    <TextView
+                        android:id="@+id/home_address"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:hint="@string/address_hint"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textColorHint="?android:attr/textColorSecondary"
+                        android:textSize="16sp" />
+
+                    <!-- 右：扫码键 -->
+                    <ImageButton
+                        android:id="@+id/button_home_scan"
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:background="@null"
+                        android:contentDescription="@string/scan"
+                        android:src="@drawable/ic_scan"
+                        android:tint="?android:attr/textColorSecondary" />
+                </LinearLayout>
+
+                <!-- 快捷方式网格容器：位于搜索框下方，代码动态按行填充，无内容或关闭时隐藏 -->
+                <LinearLayout
+                    android:id="@+id/shortcut_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginTop="24dp"
+                    android:orientation="vertical"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+            <!-- 主页左上角：天气；与右上角页面设置同排对称，页面设置开关控制显隐 -->
+            <TextView
+                android:id="@+id/home_weather"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:layout_gravity="top|start"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="4dp"
+                android:elevation="8dp"
+                android:gravity="center_vertical"
+                android:includeFontPadding="false"
+                android:paddingHorizontal="8dp"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="13sp"
+                android:visibility="gone" />
+
+            <!-- 主页右上角：页面设置；elevation 浮在 WebView 之上 -->
+            <ImageButton
+                android:id="@+id/button_page_settings"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:layout_gravity="top|end"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:elevation="8dp"
+                android:background="@null"
+                android:contentDescription="@string/page_settings"
+                android:src="@drawable/ic_page_settings"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <include layout="@layout/view_error_page" />
+        </FrameLayout>
+
+        <!-- 底部导航：固定在底部，底部 padding 由代码加上手势条 inset，
+             背景延伸到屏幕底端，图标不贴边。 -->
+        <LinearLayout
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="2dp">
+
+            <ImageButton
+                android:id="@+id/button_back"
+                style="@style/NavButton"
+                android:contentDescription="@string/back"
+                android:src="@drawable/ic_back" />
+
+            <ImageButton
+                android:id="@+id/button_forward"
+                style="@style/NavButton"
+                android:contentDescription="@string/forward"
+                android:src="@drawable/ic_forward" />
+
+            <ImageButton
+                android:id="@+id/button_new_tab"
+                style="@style/NavButton"
+                android:contentDescription="@string/new_tab"
+                android:src="@drawable/ic_add" />
+
+            <FrameLayout
+                android:id="@+id/button_tab"
+                style="@style/NavButton"
+                android:contentDescription="@string/tabs"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tab_count"
+                    android:layout_width="22dp"
+                    android:layout_height="22dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/tab_count_bg"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:textSize="12sp" />
+            </FrameLayout>
+
+            <ImageButton
+                android:id="@+id/button_menu"
+                style="@style/NavButton"
+                android:contentDescription="@string/menu"
+                android:src="@drawable/ic_menu" />
+        </LinearLayout>
+    </LinearLayout>
+    <!-- 顶部工具栏（不透明通栏）：固定在顶部，包含状态栏占位、无痕标识、地址栏胶囊、进度条 -->
+    <LinearLayout
+        android:id="@+id/top_overlay"
+        android:layout_gravity="top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical">
+
+        <!-- 状态栏占位：高度由代码按状态栏 inset 设置，通栏背景自然延伸到屏幕顶端 -->
+        <View
+            android:id="@+id/status_bar_spacer"
+            android:layout_width="match_parent"
+            android:layout_height="0dp" />
+
+        <!-- 无痕模式标识条：显示时把下方地址栏整体下移，不遮挡 -->
+        <LinearLayout
+            android:id="@+id/incognito_banner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/incognito_banner_bg"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:padding="10dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_incognito"
+                android:tint="#FFFFFFFF" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:text="@string/incognito_banner"
+                android:textColor="#FFFFFFFF"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <!-- 顶部胶囊：FrameLayout 让域名相对整个胶囊真正居中，按钮浮在两侧。
+             elevation>0 让其进入独立硬件层，确保合成在 WebView 之上（修复冷启动首次不绘制） -->
+        <FrameLayout
+            android:id="@+id/top_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/top_pill_bg"
+            android:elevation="8dp"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/top_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:background="@null"
+                android:ellipsize="end"
+                android:gravity="center"
+                android:hint="@string/address_hint"
+                android:imeOptions="actionGo"
+                android:importantForAutofill="no"
+                android:inputType="text|textNoSuggestions"
+                android:paddingStart="46dp"
+                android:paddingEnd="84dp"
+                android:singleLine="true"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textColorHint="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <ImageButton
+                android:id="@+id/button_back_arrow"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="start|center_vertical"
+                android:layout_marginStart="2dp"
+                android:background="@null"
+                android:contentDescription="@string/back"
+                android:src="@drawable/ic_back"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <ImageButton
+                android:id="@+id/button_top_reload"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="46dp"
+                android:background="@null"
+                android:contentDescription="@string/reload"
+                android:src="@drawable/ic_reload"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <!-- 加载中显示的叉号停止键，与刷新键同位置，代码按加载状态切换 -->
+            <ImageButton
+                android:id="@+id/button_top_stop"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="46dp"
+                android:background="@null"
+                android:contentDescription="@string/stop_loading"
+                android:src="@drawable/ic_stop"
+                android:tint="?android:attr/textColorSecondary"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/button_top_scan"
+                android:layout_width="38dp"
+                android:layout_height="38dp"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:background="@null"
+                android:contentDescription="@string/scan"
+                android:src="@drawable/ic_scan"
+                android:tint="?android:attr/textColorSecondary" />
+        </FrameLayout>
+
+
+        <!-- 页内查找栏：与顶部地址栏同宽胶囊风格，默认隐藏 -->
+        <LinearLayout
+            android:id="@+id/find_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="12dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/top_pill_bg"
+            android:elevation="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/find_input"
+                android:layout_width="0dp"
+                android:layout_height="38dp"
+                android:layout_weight="1"
+                android:background="@null"
+                android:hint="@string/find_hint"
+                android:imeOptions="actionSearch"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:singleLine="true"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textColorHint="?android:attr/textColorSecondary"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/find_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="6dp"
+                android:text="0/0"
+                android:textColor="?android:attr/textColorSecondary"
+                android:textSize="12sp" />
+
+            <ImageButton
+                android:id="@+id/button_find_prev"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@null"
+                android:contentDescription="@string/find_prev"
+                android:rotation="180"
+                android:src="@drawable/ic_arrow_down"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <ImageButton
+                android:id="@+id/button_find_next"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@null"
+                android:contentDescription="@string/find_next"
+                android:src="@drawable/ic_arrow_down"
+                android:tint="?android:attr/textColorSecondary" />
+
+            <ImageButton
+                android:id="@+id/button_find_close"
+                android:layout_width="34dp"
+                android:layout_height="34dp"
+                android:background="@null"
+                android:contentDescription="@string/cancel"
+                android:src="@drawable/ic_close"
+                android:tint="?android:attr/textColorSecondary" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="1.5dp"
+            android:layout_marginTop="3dp"
+            android:max="100"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <!-- 搜索建议：直接嵌在页面里的列表，从搜索框下方开始铺满页面，不是弹窗 -->
+    <LinearLayout
+        android:id="@+id/home_suggestion_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <ListView
+            android:id="@+id/home_suggestion_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:divider="@null"
+            android:dividerHeight="0dp"
+            android:listSelector="@android:color/transparent"
+            android:overScrollMode="never" />
+    </LinearLayout>
+</FrameLayout>

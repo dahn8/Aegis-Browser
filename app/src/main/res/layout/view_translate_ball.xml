@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 翻译悬浮球：白色圆角方形，翻完右下角出现绿色对勾 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
+    android:background="@drawable/bg_translate_ball"
+    android:elevation="6dp"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:clickable="true"
+    android:focusable="false">
+
+    <ImageView
+        android:id="@+id/translate_ball_icon"
+        android:layout_width="21dp"
+        android:layout_height="21dp"
+        android:layout_gravity="center"
+        android:src="@drawable/ic_translate"
+        android:contentDescription="@string/translate_page" />
+
+    <ImageView
+        android:id="@+id/translate_ball_badge"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="-3dp"
+        android:layout_marginBottom="-3dp"
+        android:background="@drawable/bg_translate_check"
+        android:src="@drawable/ic_translate_check"
+        android:visibility="gone"
+        android:contentDescription="@string/translate_bar_done" />
+</FrameLayout>
