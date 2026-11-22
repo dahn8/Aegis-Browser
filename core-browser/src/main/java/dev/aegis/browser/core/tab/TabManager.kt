@@ -47,6 +47,7 @@ class TabManager(
 
     val tabCount: Int get() = tabs.size
     val currentTab: BrowserTab? get() = tabs.getOrNull(currentIndex)
+    val currentTabIndex: Int get() = currentIndex
 
     /** 切换 UA 标识后，把所有已打开标签的 UA 同步并重载，使设置立即生效 */
     fun refreshUserAgent() {
