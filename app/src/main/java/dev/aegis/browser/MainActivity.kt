@@ -103,6 +103,7 @@ import dev.aegis.browser.ui.AegisDialog
 import dev.aegis.browser.ui.AppLanguage
 import dev.aegis.browser.ui.BrowserToolbarHelper
 import dev.aegis.browser.ui.FontSizeStore
+import dev.aegis.browser.ui.Haptics
 import dev.aegis.browser.ui.ScreenOrientation
 import dev.aegis.browser.ui.SoftThemeChrome
 import dev.aegis.browser.ui.SoftThemeStore
@@ -940,7 +941,7 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
                         return true
                     }
                     KeyEvent.KEYCODE_W -> {
-                        tabManager.currentTab?.let { tabManager.closeTab(it) }
+                        if (tabManager.currentTabIndex >= 0) tabManager.closeTab(tabManager.currentTabIndex)
                         return true
                     }
                     KeyEvent.KEYCODE_R -> {
@@ -952,7 +953,7 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
                         return true
                     }
                     KeyEvent.KEYCODE_L -> {
-                        if (tab == null || tab.url == BLANK_URL) openHomeSearchEditor()
+                        if (tab == null || tab.url == BLANK_URL) enterEditMode()
                         else {
                             userEditingAddress = true
                             updateBars()
