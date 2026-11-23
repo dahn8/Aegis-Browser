@@ -169,6 +169,8 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     private lateinit var statusBarSpacer: View
     private lateinit var topSpacer: View
     private lateinit var homeBgImage: ImageView
+    /** 上一次排版使用的方向，用来避免尺寸微调时反复重建快捷方式网格 */
+    private var orientationLandscapeFlag: Boolean? = null
 
     private var findBar: View? = null
     private var findInput: EditText? = null
@@ -267,8 +269,10 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         restoreInitialTabs(savedInstanceState)
 
         applyShortcutLayoutForOrientation()
+        applyHomeLogoSize()
         renderShortcuts()
         applyHomeBackground()
+        orientationLandscapeFlag = isLandscapeNow()
         applyIncognitoWindowSecurity()
         updateIncognitoIndicator()
         SearchPreconnect.warmUp(store.selected())
@@ -318,14 +322,17 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
                 val current = tabManager.currentTab
                 val home = current == null || current.url == BLANK_URL
                 applyWeatherVisibility(home)
+                // 窗口尺寸变了：方向若翻转，按新方向整体重排（图标尺寸、快捷方式、胶囊落位）
+                syncOrientationLayout()
             }
         }
         homeWeather?.setOnClickListener { view ->
             WeatherPopup.show(this, view, isDarkMode) { applyWeatherText() }
         }
         webContainer.addOnLayoutChangeListener { _, l, t, r, b, ol, ot, or_, ob ->
-            if ((r - l != or_ - ol || b - t != ob - ot) && homeContent.visibility == View.VISIBLE) {
-                homeContent.post { applyHomePillAnchor() }
+            if (r - l != or_ - ol || b - t != ob - ot) {
+                // 可用高度变了：按最新方向整体重排，再落位搜索胶囊
+                syncOrientationLayout()
             }
         }
     }
@@ -1286,14 +1293,18 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         val h = webContainer.height
         val pillH = homePill.height
         if (h <= 0 || pillH <= 0) return
-        val landscape = webContainer.width > webContainer.height
-        var target = if (landscape) dpSize(10).toFloat() else (h - pillH) / 2f + dpSize(110)
+        val landscape = isLandscapeNow()
+        // 横屏整体贴顶紧凑排列：小号 A 图标 → 搜索胶囊 → 快捷方式，全部落在可视区内；
+        // 竖屏保持原来的偏下居中布局
+        var target = if (landscape) 0f else (h - pillH) / 2f + dpSize(110)
         val homeLogo = findViewById<ImageView>(R.id.home_logo)
-        if (homeLogo != null && homeLogo.visibility == View.VISIBLE) {
-            target -= homeLogo.height + dpSize(30)
-        } else if (inprivateCard?.visibility == View.VISIBLE) {
-            val cardH = inprivateCard?.height?.takeIf { it > 0 } ?: dpSize(96)
-            target -= cardH + dpSize(16)
+        if (!landscape) {
+            if (homeLogo != null && homeLogo.visibility == View.VISIBLE) {
+                target -= homeLogo.height + dpSize(30)
+            } else if (inprivateCard?.visibility == View.VISIBLE) {
+                val cardH = inprivateCard?.height?.takeIf { it > 0 } ?: dpSize(96)
+                target -= cardH + dpSize(16)
+            }
         }
         homeContent.translationY = target.coerceIn(0f, (h - pillH).coerceAtLeast(0).toFloat())
         if (landscape) {
@@ -1311,16 +1322,49 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         super.onConfigurationChanged(newConfig)
         // 快捷方式编辑态是脱离原容器的浮层，转屏必须先退出，否则位置与尺寸会错乱
         if (shortcutEditMode) exitShortcutEdit()
-        val tab = tabManager.currentTab
-        val onHome = tab == null || tab.url == BLANK_URL || tab.url.isBlank()
-        // 主页标识、快捷方式网格都依赖方向，转屏后必须重算，否则会沿用上一个方向的排版
+        hideSuggestions()
+        menuController.onConfigurationChanged(newConfig)
+        // 转屏瞬间窗口尺寸往往还没更新，先排一次，等新尺寸就绪后再强制重排一次
+        syncOrientationLayout(force = true)
+        rootView.postDelayed({ syncOrientationLayout(force = true) }, 120L)
+        rootView.postDelayed({ syncOrientationLayout(force = true) }, 360L)
+    }
+
+    /**
+     * 主页的方向相关排版统一入口：A 图标尺寸、图标显隐、快捷方式容器与网格列数、
+     * 搜索胶囊落位，全部按当前真实窗口方向重算，避免只改一半造成错位。
+     */
+    private fun syncOrientationLayout(force: Boolean = false) {
+        val landscape = isLandscapeNow()
+        val landscapeChanged = orientationLandscapeFlag != landscape
+        if (!force && !landscapeChanged) {
+            // 方向没变时只校正胶囊落位，避免每次尺寸变化都重建快捷方式网格
+            applyHomePillAnchor()
+            return
+        }
+        orientationLandscapeFlag = landscape
+        applyHomeLogoSize()
         applyHomeBackground()
         applyShortcutLayoutForOrientation()
         renderShortcuts()
-        applyWeatherVisibility(onHome)
-        hideSuggestions()
-        menuController.onConfigurationChanged(newConfig)
-        homeContent.post { applyHomePillAnchor() }
+        val tab = tabManager.currentTab
+        applyWeatherVisibility(tab == null || tab.url == BLANK_URL || tab.url.isBlank())
+        applyHomePillAnchor()
+    }
+
+    /** 横屏压缩 A 图标尺寸与上下留白，把竖向空间让给搜索胶囊和快捷方式；竖屏复原 */
+    private fun applyHomeLogoSize() {
+        val logo = findViewById<ImageView>(R.id.home_logo) ?: return
+        val landscape = isLandscapeNow()
+        val size = if (landscape) dpSize(84) else dpSize(150)
+        val lp = logo.layoutParams as? LinearLayout.LayoutParams ?: return
+        if (lp.width != size || lp.height != size) {
+            lp.width = size
+            lp.height = size
+        }
+        lp.topMargin = if (landscape) dpSize(2) else dpSize(4)
+        lp.bottomMargin = if (landscape) dpSize(4) else dpSize(10)
+        logo.layoutParams = lp
     }
 
     // ==================== 快捷方式 ====================
@@ -1331,23 +1375,34 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
      */
     private fun shortcutColumns(): Int {
         if (!isLandscapeNow()) return SHORTCUTS_PER_ROW
-        val usable = minOf(
-            resources.displayMetrics.widthPixels - dpSize(32),
-            dpSize(720)
-        )
+        val usable = minOf(windowWidthPx() - dpSize(32), dpSize(680))
         return (usable / dpSize(88)).coerceIn(6, 8)
     }
 
+    /** 实际使用的列数：横屏按格子数量收窄，避免少量图标被摊到大半屏显得稀疏 */
+    private fun shortcutColumnsFor(cellCount: Int): Int {
+        val max = shortcutColumns()
+        return if (cellCount <= 0) max else minOf(cellCount, max)
+    }
+
+    /** 取真实窗口宽度，避开转屏时 displayMetrics 尚未刷新的滞后 */
+    private fun windowWidthPx(): Int {
+        val w = rootView.width
+        return if (w > 0) w else resources.displayMetrics.widthPixels
+    }
+
     /**
-     * 横屏下把快捷方式容器收窄到内容需要的宽度并压缩上边距，
-     * 保证搜索胶囊 + 最多两行快捷方式能完整落在可视区内；竖屏复原。
+     * 横屏下快捷方式容器按实际列数收窄并压缩上边距，
+     * 保证小号 A 图标 + 搜索胶囊 + 快捷方式完整落在可视区内；竖屏复原。
      */
     private fun applyShortcutLayoutForOrientation() {
         val lp = shortcutContainer.layoutParams as? LinearLayout.LayoutParams ?: return
         if (isLandscapeNow()) {
-            val dm = resources.displayMetrics
-            lp.width = minOf(dm.widthPixels - dpSize(32), dpSize(720))
-            lp.topMargin = dpSize(8)
+            val shortcuts = shortcutStore.all()
+            val cellCount = shortcuts.size + if (shortcuts.size < SHORTCUT_MAX) 1 else 0
+            val columns = shortcutColumnsFor(cellCount)
+            lp.width = minOf(columns * dpSize(88), windowWidthPx() - dpSize(32), dpSize(680))
+            lp.topMargin = dpSize(10)
         } else {
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT
             lp.topMargin = dpSize(24)
@@ -1371,7 +1426,8 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             return
         }
         shortcutContainer.visibility = View.VISIBLE
-        val perRow = shortcutColumns()
+        val perRow = shortcutColumnsFor(cellCount)
+        val landscape = isLandscapeNow()
         var rowLayout: LinearLayout? = null
         for (index in 0 until cellCount) {
             if (index % perRow == 0) {
@@ -1383,6 +1439,17 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             }
             val isAdd = index == shortcuts.size
             val item = layoutInflater.inflate(R.layout.item_shortcut, rowLayout, false)
+            // 横屏竖向空间紧张：压缩格子上下留白与标题间距，保证两行也能完整显示
+            if (landscape) {
+                item.setPadding(dpSize(4), dpSize(2), dpSize(4), dpSize(2))
+                item.findViewById<TextView>(R.id.shortcut_title).apply {
+                    val tlp = layoutParams as? LinearLayout.LayoutParams
+                    if (tlp != null) {
+                        tlp.topMargin = dpSize(4)
+                        layoutParams = tlp
+                    }
+                }
+            }
             val card = item.findViewById<View>(R.id.shortcut_card)
             card.clipToOutline = true
             val icon = item.findViewById<ImageView>(R.id.shortcut_icon)
@@ -1494,10 +1561,18 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     }
 
     fun isLandscapeNow(): Boolean {
-        if (rootView.width > 0 && rootView.height > 0) {
-            return rootView.width > rootView.height
+        // 以真实窗口尺寸为准：部分机型转屏时 resources 的配置与尺寸更新滞后，
+        // 只看 configuration 会把横屏当竖屏（或反之）算出错误布局
+        val w = rootView.width
+        val h = rootView.height
+        if (w > 0 && h > 0 && w != h) {
+            return w > h
         }
-        return resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        val orientation = resources.configuration.orientation
+        if (orientation != Configuration.ORIENTATION_UNDEFINED) {
+            return orientation == Configuration.ORIENTATION_LANDSCAPE
+        }
+        return false
     }
 
     fun applyWeatherVisibility(onHome: Boolean) {
@@ -1848,7 +1923,8 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         val homeLogo = findViewById<ImageView>(R.id.home_logo)
         if (homeLogo != null) {
             val plainWallpaper = homeBackgroundStore.builtinRes() == 0 && homeBackgroundStore.backgroundUri() == null
-            homeLogo.visibility = if (plainWallpaper && !isLandscapeNow() && !IncognitoMode.isEnabled(this)) View.VISIBLE else View.GONE
+            // A 标识横竖屏都显示：横屏由 applyHomeLogoSize() 缩小尺寸，竖向空间留给快捷方式
+            homeLogo.visibility = if (plainWallpaper && !IncognitoMode.isEnabled(this)) View.VISIBLE else View.GONE
             homeLogo.post { applyHomePillAnchor() }
         }
         val builtin = homeBackgroundStore.builtinRes()
