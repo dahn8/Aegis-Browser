@@ -162,6 +162,15 @@
     <string name="default_browser_settings_missing">Can\'t open the system default-apps settings</string>
     <string name="about_app">About Aegis</string>
     <string name="version_format">Version %1$s</string>
+    <string name="check_update">Check for updates</string>
+    <string name="checking_update">Checking for updates…</string>
+    <string name="update_latest">Already up to date (%1$s)</string>
+    <string name="update_found_title">New version %1$s available</string>
+    <string name="update_found_message">Current version %1$s\n\n%2$s</string>
+    <string name="update_download">Download</string>
+    <string name="update_later">Later</string>
+    <string name="update_check_failed">Update check failed. Check your network and try again.</string>
+    <string name="update_no_browser">No app available to open the download page.</string>
     <string name="ua_hint">Open pages reload automatically after switching UA.</string>
     <string name="pc_to_mobile_hint">Only applies when UA is set to Computer: squeezes desktop pages back to phone width.</string>
 
