@@ -5,7 +5,7 @@
 ## 隐私原则
 
 - **零三方依赖**：仅使用 Android 系统 framework，不引入任何第三方库
-- **最小权限**：只申请 `INTERNET` 一个权限
+- **最小权限**：仅 `INTERNET`、`VIBRATE`、`CAMERA`（仅扫码）与 `REQUEST_INSTALL_PACKAGES`（安装更新包），不申请存储、定位、通讯录与短信
 - **默认拒绝第三方 Cookie**：第一方 Cookie 可用，跨站追踪默认阻断
 - **不备份、不上报**：`allowBackup=false`，无遥测、无崩溃上报、无推送
 - **无后台行为**：不运行 Service、不做定时任务，规则更新仅由用户手动触发
@@ -107,9 +107,24 @@
 - 书签：内置 org.json 持久化，菜单一键添加，书签页点击打开、长按删除，按 URL 去重
 - URL 跟踪参数剥离：主框架导航自动移除 utm_*、gclid、fbclid、spm 等常见跟踪参数，保留原始编码，默认开启可关闭
 
-## 后续里程碑
+## M6 已完成（隐私验证与发布）
 
-- **M6** 验证发布：指纹/泄露测试、F-Droid 与 GitHub Release
+- 反指纹基线：`navigator` 平台、厂商、硬件参数与真实 UA 自洽，隐私设置可关闭
+- Referrer 收紧：页面级注入 `strict-origin-when-cross-origin`，跨站请求只带源
+- 拦截记录页：最近 200 条命中域名、来源页面与时间，误伤可一键加入白名单
+- 无痕零落盘：不写入最后访问地址、不保存标签会话，退出与销毁时统一清理
+- 自动发布：推送 `v*` 标签触发 `Release APK` 工作流，自动编译并创建 GitHub Release（v0.9.17 已发布）
+- F-Droid：`fastlane` 元数据与 `fdroiddata` metadata 已就绪，正式提交待 GitLab 账号验证
+- 五项验收清单见 [`docs/M6-隐私自检.md`](docs/M6-隐私自检.md)
+
+## 应用内检查更新
+
+设置 → 实用工具与关于 → 关于 Aegis → 「检查更新」：读取 GitHub Releases 最新版本并逐段比较；接口限流时自动回退到 `releases.atom`；发现新版本可直接前往 Release 下载。
+
+## 后续计划
+
+- F-Droid 正式提交（待 GitLab 账号验证）
+- 生成正式签名 keystore，版本推进到 0.9.18
 
 ## 许可证
 
