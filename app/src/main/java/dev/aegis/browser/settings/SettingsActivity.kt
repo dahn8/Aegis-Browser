@@ -5,6 +5,7 @@ import android.app.ProgressDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
@@ -67,6 +68,7 @@ class SettingsActivity : Activity() {
 
     private var dark = false
     private var searchQuery = ""
+    private var updateChecking = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         themeSettings = ThemeSettings(this)
@@ -364,6 +366,7 @@ class SettingsActivity : Activity() {
                 )
             },
             SearchEntry(getString(R.string.set_default_browser), gTools, R.drawable.ic_home, "default browser 默认浏览器") { openDefaultAppSettings() },
+            SearchEntry(getString(R.string.check_update), gTools, R.drawable.ic_download, "update upgrade version github release 检查更新 升级 版本") { checkForUpdates() },
             SearchEntry(getString(R.string.about_app), gTools, R.drawable.ic_menu, "about version aegis 关于 版本") { showAboutDialog() }
         )
     }
@@ -424,8 +427,88 @@ class SettingsActivity : Activity() {
         AegisDialog.Builder(this)
             .setTitle(R.string.about_app)
             .setMessage(getString(R.string.version_format, versionName()))
+            .setNeutralButton(R.string.check_update) { _, _ -> checkForUpdates() }
             .setPositiveButton(R.string.confirm, null)
             .show()
+    }
+
+    /** 从 GitHub Releases 拉取最新版本，与当前版本比对后给出结果 */
+    @Suppress("DEPRECATION")
+    private fun checkForUpdates() {
+        if (updateChecking) return
+        updateChecking = true
+        val current = versionName()
+        val progress = ProgressDialog(this).apply {
+            setMessage(getString(R.string.checking_update))
+            setCancelable(false)
+            show()
+        }
+        Thread {
+            val result = UpdateChecker.check(current)
+            if (result is UpdateChecker.Result.Failure) {
+                android.util.Log.w("AegisUpdate", "check failed: ${result.message}")
+            }
+            runOnUiThread {
+                updateChecking = false
+                if (isFinishing || isDestroyed) {
+                    progress.dismiss()
+                    return@runOnUiThread
+                }
+                progress.dismiss()
+                when (result) {
+                    is UpdateChecker.Result.Success -> showUpdateResult(current, result.release)
+                    is UpdateChecker.Result.Failure -> Toast.makeText(
+                        this,
+                        R.string.update_check_failed,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        }.start()
+    }
+
+    private fun showUpdateResult(current: String, release: UpdateChecker.Release) {
+        if (!UpdateChecker.isNewer(release.version, current)) {
+            AegisDialog.Builder(this)
+                .setTitle(R.string.check_update)
+                .setMessage(getString(R.string.update_latest, current))
+                .setPositiveButton(R.string.confirm, null)
+                .show()
+            return
+        }
+        val notes = summarizeNotes(release.notes)
+        val message = if (notes.isEmpty()) {
+            getString(R.string.version_format, release.version)
+        } else {
+            getString(R.string.update_found_message, current, notes)
+        }
+        AegisDialog.Builder(this)
+            .setTitle(getString(R.string.update_found_title, release.version))
+            .setMessage(message)
+            .setPositiveButton(R.string.update_download) { _, _ ->
+                openUpdatePage(release.apkUrl ?: release.pageUrl)
+            }
+            .setNegativeButton(R.string.update_later, null)
+            .show()
+    }
+
+    /** Release 正文是 Markdown，去掉标题/分隔线并限制行数与字数，避免弹窗过长 */
+    private fun summarizeNotes(notes: String): String {
+        val lines = notes.lineSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .filterNot { it.startsWith("#") || it.startsWith("---") || it.startsWith("|") }
+            .take(10)
+            .joinToString("\n")
+        return if (lines.length > 600) lines.take(600).trimEnd() + "…" else lines
+    }
+
+    private fun openUpdatePage(url: String) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        } catch (_: Exception) {
+            Toast.makeText(this, R.string.update_no_browser, Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun ruleSummary(): String {
