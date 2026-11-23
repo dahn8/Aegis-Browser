@@ -1,1 +1,1 @@
-Lightweight privacy-first browser shell: no background services, no telemetry, no accounts.
+Lightweight privacy-first browser with no telemetry or accounts.

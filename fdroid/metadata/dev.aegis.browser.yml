@@ -1,29 +1,38 @@
-# F-Droid 提交元数据模板（dev.aegis.browser）
-# 用法：把本文件内容合并进 fdroiddata 仓库的 metadata/dev.aegis.browser.yml，
-# 并按实际上架版本调整 CurrentVersion / CurrentVersionCode / Builds。
-
 Categories:
   - Internet
 License: MIT
 AuthorName: Aegis Browser Contributors
 WebSite: https://github.com/dahn8/Aegis-Browser
-
 SourceCode: https://github.com/dahn8/Aegis-Browser
 IssueTracker: https://github.com/dahn8/Aegis-Browser/issues
 Changelog: https://github.com/dahn8/Aegis-Browser/releases
-
-AutoUpdateMode: Version
-UpdateCheckMode: Tags ^v.*$
-CurrentVersion: 0.9.17
-CurrentVersionCode: 137
+AutoName: Aegis Browser
 
 RepoType: git
 Repo: https://github.com/dahn8/Aegis-Browser
 
-# 说明：
-# - 项目为多模块 Gradle（:app, :core-browser, :feature-*），subdir 保持根目录
-# - 构建产物为 debug 签名 APK，F-Droid 会在构建后用自己的密钥重新签名
-# - 若启用正式签名，请把 keystore 放到 metadata 侧管理，不要提交到仓库
+Summary: Lightweight privacy-first browser with no telemetry or accounts
+Description: |
+  Aegis Browser is an ultra-light browser shell built on the system WebView.
+
+  Privacy by default:
+  * Ad and tracker blocking with bundled domain rules
+  * Referrer limited to origin for cross-site requests
+  * Fingerprint baseline keeps navigator values consistent with the user agent
+  * Third-party cookies blocked, Do Not Track and Global Privacy Control signalled
+  * URL tracking parameters stripped
+  * HTTPS-Only mode with an explicit fallback prompt
+  * Incognito mode writes nothing to disk and clears session data on exit
+
+  Light by design:
+  * No background services, no telemetry, no account, no storage/location/contacts/SMS permissions
+  * Camera is used for QR scanning only, install permission only for updating downloaded APKs
+  * Multi-tab, bookmarks, history, downloads, page translation and fullscreen video
+  * Material 3 interface with light/dark/system themes
+
+  Notes:
+  * Rendering depends on the system WebView version
+  * Encrypted HLS and fMP4 video cannot be demuxed by the built-in player
 
 Builds:
   - versionName: 0.9.17
@@ -31,7 +40,6 @@ Builds:
     commit: v0.9.17
     gradle:
       - yes
-    output: app/build/outputs/apk/debug/app-debug.apk
 
-AntiFeatures: []
-RequiresRoot: false
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v.*$
