@@ -1,0 +1,20 @@
+Aegis Browser is an ultra-light browser shell built on the system WebView.
+
+Privacy by default:
+- Ad and tracker blocking with bundled domain rules, updates are manual
+- Referrer limited to origin for cross-site requests
+- Fingerprint baseline keeps navigator values consistent with the user agent
+- Third-party cookies blocked, Do Not Track and Global Privacy Control signalled
+- URL tracking parameters stripped
+- HTTPS-Only mode with an explicit fallback prompt
+- Incognito mode writes nothing to disk and clears session data on exit
+
+Light by design:
+- No background services, no telemetry, no account, no storage/location/contacts/SMS permissions
+- Camera is used for QR scanning only, install permission only for updating downloaded APKs
+- Multi-tab, bookmarks, history, downloads, page translation and fullscreen video
+- Material 3 interface with light/dark/system themes
+
+Notes:
+- Rendering depends on the system WebView version
+- Encrypted HLS and fMP4 video cannot be demuxed by the built-in player

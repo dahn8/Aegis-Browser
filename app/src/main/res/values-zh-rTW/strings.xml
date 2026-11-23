@@ -451,4 +451,15 @@ Alt + 左/右方向鍵：後退 / 前進</string>
     <string name="rules_sub_url_hint">規則連結（https://...）</string>
     <string name="rules_sub_invalid_url">請輸入以 http:// 或 https:// 開頭的規則連結</string>
     <string name="rules_sub_added">已新增並啟用訂閱，點擊更新規則生效</string>
+    <string name="anti_fingerprint">反指紋基線</string>
+    <string name="anti_fingerprint_desc">統一 navigator 平台與硬體參數，避免與 UA 衝突拼出唯一指紋</string>
+    <string name="block_log">攔截記錄</string>
+    <string name="block_log_recent">最近攔截 %1$d 筆</string>
+    <string name="block_log_empty">尚無攔截記錄</string>
+    <string name="block_log_empty_desc">瀏覽含廣告的頁面後，這裡會列出被規則攔下的網域，用於核對命中與誤攔</string>
+    <string name="block_log_from">來源頁面：%1$s</string>
+    <string name="block_log_no_page">來源頁面未知</string>
+    <string name="block_log_clear">清除攔截記錄</string>
+    <string name="block_log_cleared">攔截記錄已清除</string>
+    <string name="block_log_whitelisted">已加入白名單，後續不再攔截</string>
 </resources>

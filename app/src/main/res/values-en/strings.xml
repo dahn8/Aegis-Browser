@@ -466,4 +466,15 @@ Alt + Left/Right: Back / Forward</string>
     <string name="rules_sub_url_hint">Filter URL (https://...)</string>
     <string name="rules_sub_invalid_url">Please enter a URL starting with http:// or https://</string>
     <string name="rules_sub_added">Subscription added. Tap Update rules to apply.</string>
+    <string name="anti_fingerprint">Fingerprint baseline</string>
+    <string name="anti_fingerprint_desc">Normalize navigator platform and hardware values so they stay consistent with the UA</string>
+    <string name="block_log">Block log</string>
+    <string name="block_log_recent">%1$d recent blocks</string>
+    <string name="block_log_empty">No blocked requests yet</string>
+    <string name="block_log_empty_desc">After browsing pages with ads, blocked domains will appear here for hit and false-positive checks</string>
+    <string name="block_log_from">From page: %1$s</string>
+    <string name="block_log_no_page">Source page unknown</string>
+    <string name="block_log_clear">Clear block log</string>
+    <string name="block_log_cleared">Block log cleared</string>
+    <string name="block_log_whitelisted">Added to allowlist, no longer blocked</string>
 </resources>

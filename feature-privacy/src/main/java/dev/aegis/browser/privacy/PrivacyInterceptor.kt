@@ -26,6 +26,16 @@ class PrivacyInterceptor private constructor(context: Context) : RequestIntercep
 
     private val blockedTotal = AtomicInteger(0)
 
+    /** 最近拦截记录（用于 M6 命中与误伤排查），最多保留 [BLOCK_LOG_MAX] 条 */
+    data class BlockedHit(
+        val host: String,
+        val pageHost: String?,
+        val reason: String,
+        val timeMs: Long
+    )
+
+    private val blockLog = ArrayDeque<BlockedHit>()
+
     init {
         reload()
     }
@@ -61,10 +71,32 @@ class PrivacyInterceptor private constructor(context: Context) : RequestIntercep
 
         if (current.isBlocked(host)) {
             blockedTotal.incrementAndGet()
+            recordBlock(host, pageHost, "filter")
             return BlockDecision(reason = "filter")
         }
         return null
     }
+
+    /** 记录最近拦截，供隐私设置页的“拦截记录”核对命中与误伤 */
+    @Synchronized
+    private fun recordBlock(host: String, pageHost: String?, reason: String) {
+        blockLog.addLast(BlockedHit(host, pageHost, reason, System.currentTimeMillis()))
+        while (blockLog.size > BLOCK_LOG_MAX) {
+            blockLog.removeFirst()
+        }
+    }
+
+    /** 最近的拦截记录，按时间倒序（最新在前） */
+    @Synchronized
+    fun recentBlocks(): List<BlockedHit> = blockLog.toList().asReversed()
+
+    @Synchronized
+    fun clearBlockLog() {
+        blockLog.clear()
+    }
+
+    /** 日志里出现过的不同域名数量，用于设置页展示 */
+    fun loggedHostCount(): Int = recentBlocks().map { it.host }.toSet().size
 
     // 白名单
     fun whitelist(): Set<String> = cachedWhitelist
@@ -97,5 +129,6 @@ class PrivacyInterceptor private constructor(context: Context) : RequestIntercep
         private const val PREFS_NAME = "aegis_privacy"
         private const val KEY_WHITELIST = "whitelist"
         private const val KEY_ADS_BLOCK = "ads_block"
+        private const val BLOCK_LOG_MAX = 200
     }
 }

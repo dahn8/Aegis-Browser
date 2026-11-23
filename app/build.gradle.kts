@@ -11,8 +11,8 @@ android {
         applicationId = "dev.aegis.browser"
         minSdk = 26
         targetSdk = 35
-        versionCode = 136
-        versionName = "0.9.16"
+        versionCode = 137
+        versionName = "0.9.17"
     }
 
     buildTypes {

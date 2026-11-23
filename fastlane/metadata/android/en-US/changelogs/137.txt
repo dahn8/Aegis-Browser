@@ -1,0 +1,7 @@
+0.9.17
+- Fixed landscape home layout: smaller logo, raised search bar, shortcuts fully visible
+- Landscape menu is a right-side panel sized to the real window
+- Rotating with the menu open no longer squeezes it into a narrow strip
+- Restored the home logo after rotating back to portrait
+- Fixed the add-shortcut dialog title overflowing its card
+- Privacy: fingerprint baseline, referrer policy, block log with allowlist, incognito writes nothing to disk

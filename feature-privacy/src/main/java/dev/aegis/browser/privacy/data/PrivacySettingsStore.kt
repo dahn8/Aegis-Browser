@@ -29,6 +29,16 @@ class PrivacySettingsStore(context: Context) {
             prefs.edit().putBoolean(KEY_TRACKING_STRIP, value).apply()
         }
 
+    /**
+     * 反指纹基线：统一 navigator 的平台/厂商/硬件并发等取值，
+     * 让 WebView 指纹与 UA 自洽，不与真实设备特征拼出独一无二组合。
+     */
+    var antiFingerprint: Boolean
+        get() = prefs.getBoolean(KEY_ANTI_FINGERPRINT, DEFAULT_ANTI_FINGERPRINT)
+        set(value) {
+            prefs.edit().putBoolean(KEY_ANTI_FINGERPRINT, value).apply()
+        }
+
     fun jsBlockedHosts(): Set<String> =
         prefs.getStringSet(KEY_JS_BLOCKED, emptySet())?.toSet() ?: emptySet()
 
@@ -52,9 +62,11 @@ class PrivacySettingsStore(context: Context) {
         private const val KEY_HTTPS_ONLY = "https_only"
         private const val KEY_JS_BLOCKED = "js_blocked"
         private const val KEY_TRACKING_STRIP = "tracking_strip"
+        private const val KEY_ANTI_FINGERPRINT = "anti_fingerprint"
 
         private const val DEFAULT_CLEAR_ON_EXIT = false
         private const val DEFAULT_HTTPS_ONLY = false
         private const val DEFAULT_TRACKING_STRIP = true
+        private const val DEFAULT_ANTI_FINGERPRINT = true
     }
 }

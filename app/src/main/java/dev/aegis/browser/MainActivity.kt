@@ -378,7 +378,7 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             context = this,
             container = webContainer,
             requestInterceptor = interceptor,
-            scriptProvider = PrivacyScriptProvider(),
+            scriptProvider = PrivacyScriptProvider { privacySettings.antiFingerprint },
             httpsPolicy = httpsUpgradePolicy,
             jsPolicy = JsPolicyImpl(privacySettings),
             trackingPolicy = TrackingPolicyImpl(privacySettings),
@@ -1059,9 +1059,10 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         menuController.dismissAllMenu()
 
         val tab = tabManager.currentTab
-        if (tab != null && tab.url != BLANK_URL && tab.url.isNotBlank()) {
+        if (tab != null && tab.url != BLANK_URL && tab.url.isNotBlank() && !IncognitoMode.isEnabled(this)) {
             browserPrefs.lastPageUrl = tab.url
         } else {
+            // 无痕模式不记录最后访问地址，避免退出后被落盘
             browserPrefs.lastPageUrl = null
         }
 
@@ -2540,7 +2541,8 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     }
 
     fun exitApp() {
-        if (privacySettings.clearOnExit) {
+        // 无痕会话退出必须清理，不受“退出自动清除”开关影响，做到零落盘
+        if (privacySettings.clearOnExit || IncognitoMode.isEnabled(this)) {
             val webViews = tabManager.tabsSnapshot().map { it.webView }
             DataCleaner.clear(this, webViews)
             historyStore.clear()
@@ -2561,6 +2563,14 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     }
 
     override fun onDestroy() {
+        // 无痕会话销毁时兜底清理：进程内数据不留在 Cookie / WebStorage / 会话库
+        if (IncognitoMode.isEnabled(this)) {
+            runCatching {
+                DataCleaner.clear(this, tabManager.tabsSnapshot().map { it.webView })
+                historyStore.clear()
+                tabSessionStore.clear()
+            }
+        }
         if (customView != null) hideCustomView()
         handler.removeCallbacksAndMessages(null)
         ioExecutor.shutdownNow()

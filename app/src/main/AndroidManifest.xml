@@ -72,6 +72,12 @@
             android:theme="@style/Theme.Aegis.Settings" />
 
         <activity
+            android:name=".settings.BlockLogActivity"
+            android:exported="false"
+            android:label="@string/block_log"
+            android:theme="@style/Theme.Aegis.Settings" />
+
+        <activity
             android:name=".bookmarks.BookmarksActivity"
             android:exported="false"
             android:label="@string/bookmarks"

@@ -468,4 +468,15 @@ Alt + 左/右方向键：后退 / 前进</string>
     <string name="rules_sub_url_hint">规则链接（https://...）</string>
     <string name="rules_sub_invalid_url">请输入以 http:// 或 https:// 开头的规则链接</string>
     <string name="rules_sub_added">已添加并启用订阅，点击更新规则生效</string>
+    <string name="anti_fingerprint">反指纹基线</string>
+    <string name="anti_fingerprint_desc">统一 navigator 平台与硬件参数，避免与 UA 冲突拼出唯一指纹</string>
+    <string name="block_log">拦截记录</string>
+    <string name="block_log_recent">最近拦截 %1$d 条</string>
+    <string name="block_log_empty">暂无拦截记录</string>
+    <string name="block_log_empty_desc">浏览带广告的页面后，这里会列出被规则拦下的域名，用于核对命中与误伤</string>
+    <string name="block_log_from">来源页面：%1$s</string>
+    <string name="block_log_no_page">来源页面未知</string>
+    <string name="block_log_clear">清空拦截记录</string>
+    <string name="block_log_cleared">拦截记录已清空</string>
+    <string name="block_log_whitelisted">已加入白名单，后续不再拦截</string>
 </resources>

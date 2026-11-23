@@ -1,0 +1,37 @@
+# F-Droid 提交元数据模板（dev.aegis.browser）
+# 用法：把本文件内容合并进 fdroiddata 仓库的 metadata/dev.aegis.browser.yml，
+# 并按实际上架版本调整 CurrentVersion / CurrentVersionCode / Builds。
+
+Categories:
+  - Internet
+License: MIT
+AuthorName: Aegis Browser Contributors
+WebSite: https://github.com/dahn8/Aegis-Browser
+
+SourceCode: https://github.com/dahn8/Aegis-Browser
+IssueTracker: https://github.com/dahn8/Aegis-Browser/issues
+Changelog: https://github.com/dahn8/Aegis-Browser/releases
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^v.*$
+CurrentVersion: 0.9.17
+CurrentVersionCode: 137
+
+RepoType: git
+Repo: https://github.com/dahn8/Aegis-Browser
+
+# 说明：
+# - 项目为多模块 Gradle（:app, :core-browser, :feature-*），subdir 保持根目录
+# - 构建产物为 debug 签名 APK，F-Droid 会在构建后用自己的密钥重新签名
+# - 若启用正式签名，请把 keystore 放到 metadata 侧管理，不要提交到仓库
+
+Builds:
+  - versionName: 0.9.17
+    versionCode: 137
+    commit: v0.9.17
+    gradle:
+      - yes
+    output: app/build/outputs/apk/debug/app-debug.apk
+
+AntiFeatures: []
+RequiresRoot: false

@@ -110,6 +110,13 @@ class PrivacySettingsActivity : Activity() {
                 subtitle = getString(R.string.third_party_cookie_desc)
             ) { checked -> CookiePolicy.setBlockThirdParty(this, checked) }
 
+            builder.switchRow(
+                box,
+                title = getString(R.string.anti_fingerprint),
+                checked = settings.antiFingerprint,
+                subtitle = getString(R.string.anti_fingerprint_desc)
+            ) { checked -> settings.antiFingerprint = checked }
+
             builder.row(
                 box,
                 title = getString(R.string.third_party_allow),
@@ -121,6 +128,13 @@ class PrivacySettingsActivity : Activity() {
 
         builder.section(getString(R.string.rules_section)) { box ->
             builder.row(box, getString(R.string.rules_state), ruleStateText())
+            builder.row(
+                box,
+                title = getString(R.string.block_log),
+                value = PrivacyInterceptor.get(this).loggedHostCount().let {
+                    if (it == 0) getString(R.string.block_log_empty) else it.toString()
+                }
+            ) { startActivity(Intent(this, BlockLogActivity::class.java)) }
             builder.row(
                 box,
                 title = getString(R.string.rules_subscriptions),
