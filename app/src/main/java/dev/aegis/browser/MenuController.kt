@@ -158,15 +158,31 @@ class MenuController(
     }
 
     fun onConfigurationChanged(newConfig: Configuration) {
-        val panel = mainMenuView ?: return
-        applyMenuOrientation(panel, newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE)
+        val landscape = newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE
+        mainMenuView?.let { applyMenuOrientation(it, landscape) }
+        allMenuView?.let { applyAllMenuOrientation(it, landscape) }
+    }
+
+    /** 全部菜单是底部大卡片，横屏可用高度小得多，列表高度上限必须按当前方向重算 */
+    private fun applyAllMenuOrientation(panel: View, landscape: Boolean) {
+        val scroll = panel.findViewById<MaxHeightScrollView>(R.id.all_menu_scroll) ?: return
+        val dm = activity.resources.displayMetrics
+        scroll.maxHeight = if (landscape) {
+            (dm.heightPixels - dp(180)).coerceAtLeast(dp(96))
+        } else {
+            (dm.heightPixels * MAX_MENU_LIST_RATIO).toInt()
+        }
+        scroll.requestLayout()
     }
 
     private fun applyMenuOrientation(panel: View, landscape: Boolean) {
         val card = panel.findViewById<View>(R.id.menu_card) ?: return
         val lp = card.layoutParams as? FrameLayout.LayoutParams ?: return
+        val dm = activity.resources.displayMetrics
+        val dragArea = panel.findViewById<View>(R.id.menu_drag_area)
+        val scroll = panel.findViewById<MaxHeightScrollView>(R.id.menu_scroll)
         if (landscape) {
-            val screenW = activity.resources.displayMetrics.widthPixels
+            val screenW = dm.widthPixels
             lp.width = minOf(dp(360), (screenW * 0.52f).toInt())
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
             lp.gravity = Gravity.END or Gravity.CENTER_VERTICAL
@@ -174,6 +190,11 @@ class MenuController(
             lp.marginEnd = dp(12)
             lp.topMargin = dp(8)
             lp.bottomMargin = dp(8)
+            // 横屏可视高度有限：藏掉拖拽关闭条，列表高度按当前屏高重算，
+            // 否则竖屏开菜单再转横屏，卡片会沿用竖屏的高度上限，上下都被挤出屏幕
+            dragArea?.visibility = View.GONE
+            scroll?.maxHeight = (dm.heightPixels - dp(120)).coerceAtLeast(dp(96))
+            card.translationY = 0f
         } else {
             lp.width = ViewGroup.LayoutParams.MATCH_PARENT
             lp.height = ViewGroup.LayoutParams.WRAP_CONTENT
@@ -182,8 +203,13 @@ class MenuController(
             lp.marginEnd = dp(12)
             lp.topMargin = 0
             lp.bottomMargin = dp(66)
+            dragArea?.visibility = View.VISIBLE
+            scroll?.maxHeight = (dm.heightPixels * 0.48f).toInt()
         }
+        // 列表高度变了，滚动容器必须重新测量，否则 maxHeight 只有在下次打开菜单时才生效
+        scroll?.requestLayout()
         card.layoutParams = lp
+        card.requestLayout()
     }
 
     private fun makeTopPill(
@@ -242,7 +268,10 @@ class MenuController(
 
         val list = panel.findViewById<LinearLayout>(R.id.all_menu_list)
         val scrollView = panel.findViewById<MaxHeightScrollView>(R.id.all_menu_scroll)
-        scrollView.maxHeight = (activity.resources.displayMetrics.heightPixels * MAX_MENU_LIST_RATIO).toInt()
+        applyAllMenuOrientation(
+            panel,
+            activity.resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        )
 
         val editingOrder = menuCustomizationStore.orderedActions().toMutableList()
         editingHidden.clear()

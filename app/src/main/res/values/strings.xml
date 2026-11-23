@@ -163,7 +163,6 @@
     <string name="default_browser_settings_missing">未找到系统的默认应用设置入口</string>
     <string name="about_app">关于 Aegis</string>
     <string name="version_format">版本 %1$s</string>
-    <string name="about_message">Aegis 是一个超轻量、隐私优先的浏览器外壳：零后台、零遥测、零账号，不收集任何浏览数据。</string>
     <string name="ua_hint">切换 UA 标识后已打开的网页会自动重新加载。</string>
     <string name="pc_to_mobile_hint">仅在 UA 标识为“电脑”时生效：把桌面网页压回手机宽度显示。</string>
 

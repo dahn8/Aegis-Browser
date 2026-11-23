@@ -423,10 +423,7 @@ class SettingsActivity : Activity() {
     private fun showAboutDialog() {
         AegisDialog.Builder(this)
             .setTitle(R.string.about_app)
-            .setMessage(
-                getString(R.string.version_format, versionName()) +
-                    "\n\n" + getString(R.string.about_message)
-            )
+            .setMessage(getString(R.string.version_format, versionName()))
             .setPositiveButton(R.string.confirm, null)
             .show()
     }

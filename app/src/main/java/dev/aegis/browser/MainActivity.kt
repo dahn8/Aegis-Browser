@@ -266,6 +266,7 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         setupSuggestions()
         restoreInitialTabs(savedInstanceState)
 
+        applyShortcutLayoutForOrientation()
         renderShortcuts()
         applyHomeBackground()
         applyIncognitoWindowSecurity()
@@ -1308,8 +1309,14 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
+        // 快捷方式编辑态是脱离原容器的浮层，转屏必须先退出，否则位置与尺寸会错乱
+        if (shortcutEditMode) exitShortcutEdit()
         val tab = tabManager.currentTab
         val onHome = tab == null || tab.url == BLANK_URL || tab.url.isBlank()
+        // 主页标识、快捷方式网格都依赖方向，转屏后必须重算，否则会沿用上一个方向的排版
+        applyHomeBackground()
+        applyShortcutLayoutForOrientation()
+        renderShortcuts()
         applyWeatherVisibility(onHome)
         hideSuggestions()
         menuController.onConfigurationChanged(newConfig)
@@ -1317,6 +1324,36 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     }
 
     // ==================== 快捷方式 ====================
+
+    /**
+     * 横屏时列数跟随窗口宽度自适应，避免固定 4 列被拉成稀疏的大格子；
+     * 竖屏保持原来的 4 列。
+     */
+    private fun shortcutColumns(): Int {
+        if (!isLandscapeNow()) return SHORTCUTS_PER_ROW
+        val usable = minOf(
+            resources.displayMetrics.widthPixels - dpSize(32),
+            dpSize(720)
+        )
+        return (usable / dpSize(88)).coerceIn(6, 8)
+    }
+
+    /**
+     * 横屏下把快捷方式容器收窄到内容需要的宽度并压缩上边距，
+     * 保证搜索胶囊 + 最多两行快捷方式能完整落在可视区内；竖屏复原。
+     */
+    private fun applyShortcutLayoutForOrientation() {
+        val lp = shortcutContainer.layoutParams as? LinearLayout.LayoutParams ?: return
+        if (isLandscapeNow()) {
+            val dm = resources.displayMetrics
+            lp.width = minOf(dm.widthPixels - dpSize(32), dpSize(720))
+            lp.topMargin = dpSize(8)
+        } else {
+            lp.width = ViewGroup.LayoutParams.MATCH_PARENT
+            lp.topMargin = dpSize(24)
+        }
+        shortcutContainer.layoutParams = lp
+    }
 
     fun renderShortcuts() {
         shortcutContainer.removeAllViews()
@@ -1334,9 +1371,10 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             return
         }
         shortcutContainer.visibility = View.VISIBLE
+        val perRow = shortcutColumns()
         var rowLayout: LinearLayout? = null
         for (index in 0 until cellCount) {
-            if (index % SHORTCUTS_PER_ROW == 0) {
+            if (index % perRow == 0) {
                 rowLayout = LinearLayout(this).apply {
                     orientation = LinearLayout.HORIZONTAL
                     layoutParams = LinearLayout.LayoutParams(-1, -2)
@@ -1393,9 +1431,9 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             }
             rowLayout?.addView(item)
         }
-        val remainder = cellCount % SHORTCUTS_PER_ROW
+        val remainder = cellCount % perRow
         if (remainder != 0) {
-            repeat(SHORTCUTS_PER_ROW - remainder) {
+            repeat(perRow - remainder) {
                 rowLayout?.addView(View(this), LinearLayout.LayoutParams(0, 1, 1f))
             }
         }

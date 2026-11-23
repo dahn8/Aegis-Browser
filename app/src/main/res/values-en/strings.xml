@@ -162,7 +162,6 @@
     <string name="default_browser_settings_missing">Can\'t open the system default-apps settings</string>
     <string name="about_app">About Aegis</string>
     <string name="version_format">Version %1$s</string>
-    <string name="about_message">Aegis is an ultra-light, privacy-first browser shell: no background services, no telemetry, no accounts, no browsing data collected.</string>
     <string name="ua_hint">Open pages reload automatically after switching UA.</string>
     <string name="pc_to_mobile_hint">Only applies when UA is set to Computer: squeezes desktop pages back to phone width.</string>
 
