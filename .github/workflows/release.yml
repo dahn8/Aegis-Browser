@@ -90,7 +90,7 @@ jobs:
         with:
           name: Aegis Browser ${{ steps.apk.outputs.version }}
           tag_name: ${{ github.ref_name }}
-          body_path: docs/release-notes-0.9.18.md
+          body_path: docs/release-notes-0.9.19.md
           files: ${{ steps.apk.outputs.path }}
           generate_release_notes: false
           make_latest: true

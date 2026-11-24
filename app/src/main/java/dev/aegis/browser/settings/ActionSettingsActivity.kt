@@ -2,12 +2,12 @@ package dev.aegis.browser.settings
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import dev.aegis.browser.R
-import dev.aegis.browser.ui.AegisDialog
 import dev.aegis.browser.ui.AppLanguage
 import dev.aegis.browser.ui.ScreenOrientation
 import dev.aegis.browser.ui.ThemeManager
@@ -81,11 +81,7 @@ class ActionSettingsActivity : Activity() {
                 title = getString(R.string.keyboard_shortcuts_help),
                 subtitle = getString(R.string.keyboard_shortcuts_help_desc)
             ) {
-                AegisDialog.Builder(this)
-                    .setTitle(R.string.keyboard_shortcuts_help)
-                    .setMessage(R.string.keyboard_shortcuts_list)
-                    .setPositiveButton(R.string.confirm, null)
-                    .show()
+                startActivity(Intent(this, KeyboardShortcutsActivity::class.java))
             }
         }
     }

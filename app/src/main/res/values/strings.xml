@@ -168,10 +168,14 @@
     <string name="update_latest">已是最新版本（%1$s）</string>
     <string name="update_found_title">发现新版本 %1$s</string>
     <string name="update_found_message">当前版本 %1$s\n\n%2$s</string>
-    <string name="update_download">前往下载</string>
+    <string name="update_download">立即更新</string>
     <string name="update_later">稍后</string>
     <string name="update_check_failed">检查更新失败，请检查网络后重试</string>
     <string name="update_no_browser">没有可打开下载页面的应用</string>
+    <string name="update_downloading_title">正在下载更新</string>
+    <string name="update_downloading_message">已下载 %1$d%%</string>
+    <string name="update_download_failed">更新下载失败，请稍后重试</string>
+    <string name="update_install_failed">无法启动安装程序</string>
     <string name="ua_hint">切换 UA 标识后已打开的网页会自动重新加载。</string>
     <string name="pc_to_mobile_hint">仅在 UA 标识为“电脑”时生效：把桌面网页压回手机宽度显示。</string>
 
@@ -200,7 +204,7 @@
     <string name="night_mode">夜间</string>
     <string name="privacy_records">隐私记录</string>
     <string name="safe_clean">放心清理</string>
-    <string name="app_temp_cache">临时缓存文件</string>
+    <string name="app_temp_cache">应用临时缓存</string>
     <string name="web_temp_cache">网页临时缓存</string>
     <string name="cookies">Cookies</string>
     <string name="history_records">历史记录</string>
@@ -454,7 +458,7 @@
     <string name="group_gestures">手势与翻页</string>
     <string name="group_media_keyboard">播放器与键盘</string>
     <string name="swipe_nav_enabled">滑动屏幕前进后退</string>
-    <string name="swipe_nav_desc">在网页左右边缘向内滑动即可后退或前进</string>
+    <string name="swipe_nav_desc">在网页任意位置左右滑动即可后退或前进，滑动时屏幕边缘显示箭头</string>
     <string name="volume_key_page_turn">使用音量键翻页</string>
     <string name="volume_key_page_turn_desc">浏览网页时按音量 +/- 键上下平滑翻页</string>
     <string name="video_player_gestures">启用视频播放器手势</string>
@@ -470,6 +474,13 @@ Ctrl + F：页内查找
 Ctrl + L：聚焦地址栏
 Ctrl + Shift + N：切换无痕模式
 Alt + 左/右方向键：后退 / 前进</string>
+    <string name="shortcut_new_tab">新建标签页</string>
+    <string name="shortcut_close_tab">关闭当前标签页</string>
+    <string name="shortcut_refresh">刷新页面</string>
+    <string name="shortcut_find">页内查找</string>
+    <string name="shortcut_focus_address">聚焦地址栏</string>
+    <string name="shortcut_incognito">切换无痕模式</string>
+    <string name="shortcut_back_forward">后退 / 前进</string>
     <string name="rules_subscriptions">规则订阅</string>
     <string name="rules_sub_count">已订阅 %d 个</string>
     <string name="rules_sub_add_custom">添加自定义订阅</string>

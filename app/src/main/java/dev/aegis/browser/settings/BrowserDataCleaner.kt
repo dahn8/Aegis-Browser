@@ -14,8 +14,14 @@ import java.util.Locale
  */
 object BrowserDataCleaner {
 
-    /** 应用临时缓存（cacheDir）字节数 */
-    fun appCacheSize(context: Context): Long = dirSize(context.cacheDir)
+    /** 应用临时缓存（cacheDir，排除 WebView 子目录，避免与网页缓存重复统计） */
+    fun appCacheSize(context: Context): Long {
+        val dir = context.cacheDir
+        return dir.listFiles()
+            ?.filterNot { it.name == "WebView" }
+            ?.sumOf { dirSize(it) }
+            ?: 0L
+    }
 
     /** 网页临时缓存（WebView 的 Cache / GPUCache）字节数 */
     fun webCacheSize(context: Context): Long {
@@ -39,9 +45,11 @@ object BrowserDataCleaner {
         return String.format(Locale.US, "%.2f GB", mb / 1024.0)
     }
 
-    /** 清空应用临时缓存 */
+    /** 清空应用临时缓存（不触碰 WebView 缓存） */
     fun clearAppCache(context: Context) {
-        context.cacheDir.listFiles()?.forEach { it.deleteRecursively() }
+        context.cacheDir.listFiles()
+            ?.filterNot { it.name == "WebView" }
+            ?.forEach { it.deleteRecursively() }
     }
 
     /** 清空网页缓存 */

@@ -2,6 +2,7 @@ package dev.aegis.browser.settings
 
 import android.app.Activity
 import android.app.ProgressDialog
+import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.ColorDrawable
@@ -36,6 +37,8 @@ import dev.aegis.browser.ui.ScreenOrientation
 import dev.aegis.browser.ui.ThemeManager
 import dev.aegis.browser.ui.ThemeSettings
 import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -69,6 +72,8 @@ class SettingsActivity : Activity() {
     private var dark = false
     private var searchQuery = ""
     private var updateChecking = false
+    private var updateDownloading = false
+    private var updateProgressDialog: ProgressDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         themeSettings = ThemeSettings(this)
@@ -123,6 +128,12 @@ class SettingsActivity : Activity() {
             return
         }
         buildUi()
+    }
+
+    override fun onDestroy() {
+        updateProgressDialog?.dismiss()
+        updateProgressDialog = null
+        super.onDestroy()
     }
 
     private fun applyWindowColors() {
@@ -486,29 +497,124 @@ class SettingsActivity : Activity() {
             .setTitle(getString(R.string.update_found_title, release.version))
             .setMessage(message)
             .setPositiveButton(R.string.update_download) { _, _ ->
-                openUpdatePage(release.apkUrl ?: release.pageUrl)
+                downloadAndInstall(release)
             }
             .setNegativeButton(R.string.update_later, null)
             .show()
     }
 
-    /** Release 正文是 Markdown，去掉标题/分隔线并限制行数与字数，避免弹窗过长 */
-    private fun summarizeNotes(notes: String): String {
-        val lines = notes.lineSequence()
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .filterNot { it.startsWith("#") || it.startsWith("---") || it.startsWith("|") }
-            .take(10)
-            .joinToString("\n")
-        return if (lines.length > 600) lines.take(600).trimEnd() + "…" else lines
+    /** 下载完成后直接唤起系统安装器，不离开设置页，也不跳转 GitHub */
+    private fun downloadAndInstall(release: UpdateChecker.Release) {
+        if (updateDownloading) return
+        val url = release.apkUrl
+        if (url.isNullOrBlank()) {
+            Toast.makeText(this, R.string.update_download_failed, Toast.LENGTH_SHORT).show()
+            return
+        }
+        updateDownloading = true
+        val progress = ProgressDialog(this).apply {
+            setTitle(R.string.update_downloading_title)
+            setMessage(getString(R.string.update_downloading_message, 0))
+            setProgressStyle(ProgressDialog.STYLE_HORIZONTAL)
+            setMax(100)
+            setProgress(0)
+            setCancelable(false)
+            show()
+        }
+        updateProgressDialog = progress
+        Thread {
+            val dir = File(filesDir, "updates").apply { mkdirs() }
+            val target = File(dir, "aegis-update.apk")
+            val downloaded = downloadApk(url, target) { percent ->
+                runOnUiThread {
+                    if (!isFinishing && !isDestroyed) {
+                        progress.setMessage(getString(R.string.update_downloading_message, percent))
+                        progress.progress = percent
+                    }
+                }
+            }
+            runOnUiThread {
+                updateDownloading = false
+                updateProgressDialog = null
+                if (isFinishing || isDestroyed) {
+                    progress.dismiss()
+                    return@runOnUiThread
+                }
+                progress.dismiss()
+                if (downloaded) {
+                    installApk(target)
+                } else {
+                    Toast.makeText(this, R.string.update_download_failed, Toast.LENGTH_LONG).show()
+                }
+            }
+        }.start()
     }
 
-    private fun openUpdatePage(url: String) {
-        try {
-            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-        } catch (_: Exception) {
-            Toast.makeText(this, R.string.update_no_browser, Toast.LENGTH_SHORT).show()
+    /** 跟随 GitHub 资产重定向下载 APK，返回是否成功 */
+    private fun downloadApk(url: String, target: File, onProgress: (Int) -> Unit): Boolean {
+        var connection: HttpURLConnection? = null
+        return try {
+            val conn = (URL(url).openConnection() as HttpURLConnection).apply {
+                connectTimeout = 12000
+                readTimeout = 30000
+                instanceFollowRedirects = true
+                setRequestProperty("User-Agent", "AegisBrowser/${versionName()}")
+            }
+            connection = conn
+            val code = conn.responseCode
+            if (code !in 200..299) return false
+            val total = conn.contentLengthLong
+            target.parentFile?.mkdirs()
+            conn.inputStream.use { input ->
+                target.outputStream().use { output ->
+                    val buffer = ByteArray(8192)
+                    var read: Int
+                    var written = 0L
+                    while (true) {
+                        read = input.read(buffer)
+                        if (read < 0) break
+                        output.write(buffer, 0, read)
+                        written += read
+                        if (total > 0L) {
+                            onProgress(((written * 100L) / total).toInt().coerceIn(0, 100))
+                        }
+                    }
+                }
+            }
+            target.length() > 0L
+        } catch (e: Exception) {
+            android.util.Log.w("AegisUpdate", "download failed: ${e.message}")
+            target.delete()
+            false
+        } finally {
+            connection?.disconnect()
         }
+    }
+
+    /** 通过自定义 ContentProvider 把私有目录 APK 授权给系统安装器 */
+    private fun installApk(file: File) {
+        val uri = Uri.parse("content://${packageName}.updates/${file.name}")
+        val intent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, "application/vnd.android.package-archive")
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            clipData = ClipData.newRawUri("", uri)
+        }
+        try {
+            startActivity(intent)
+        } catch (e: Exception) {
+            android.util.Log.w("AegisUpdate", "install failed: ${e.message}")
+            Toast.makeText(this, R.string.update_install_failed, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /** Release 正文可能很长，更新弹窗只展示第一句有效说明 */
+    private fun summarizeNotes(notes: String): String {
+        val line = notes.lineSequence()
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .firstOrNull { !it.startsWith("#") && !it.startsWith("---") && !it.startsWith("|") }
+            .orEmpty()
+        return if (line.length > 120) line.take(120).trimEnd() + "…" else line
     }
 
     private fun ruleSummary(): String {

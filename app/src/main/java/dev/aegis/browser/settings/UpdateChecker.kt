@@ -63,7 +63,7 @@ object UpdateChecker {
             val version = normalizeVersion(tag)
             val pageUrl = json.optString("html_url").ifBlank { FALLBACK_RELEASES }
             val notes = json.optString("body").trim()
-            val apkUrl = pickApk(json.optJSONArray("assets"))
+            val apkUrl = pickApk(json.optJSONArray("assets")) ?: fallbackApkUrl(tag)
             Result.Success(Release(version, tag, pageUrl, apkUrl, notes))
         } catch (e: Exception) {
             Result.Failure(e.message ?: e.javaClass.simpleName)
@@ -123,7 +123,7 @@ object UpdateChecker {
                     version = normalizeVersion(tag),
                     tag = tag,
                     pageUrl = link.ifBlank { FALLBACK_RELEASES },
-                    apkUrl = null,
+                    apkUrl = fallbackApkUrl(tag),
                     notes = stripHtml(content)
                 )
             )
@@ -161,6 +161,10 @@ object UpdateChecker {
         }
         return fallback
     }
+
+    /** Atom 回退不携带资产地址，按固定发布命名拼出 APK 下载地址 */
+    private fun fallbackApkUrl(tag: String): String =
+        "https://github.com/dahn8/Aegis-Browser/releases/download/$tag/Aegis-Browser-$tag.apk"
 
     /** 逐段比较版本号，忽略 v 前缀、预发布后缀，缺失段按 0 处理 */
     fun isNewer(candidate: String, current: String): Boolean {

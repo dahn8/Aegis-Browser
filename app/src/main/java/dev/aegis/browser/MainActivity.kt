@@ -15,6 +15,7 @@ import android.graphics.PorterDuff
 import android.graphics.RenderEffect
 import android.graphics.Shader
 import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.Icon
 import android.net.Uri
 import android.net.http.SslError
@@ -224,6 +225,8 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
     private var swipeNavTriggered = false
     private var swipeNavStartX = 0f
     private var swipeNavStartY = 0f
+    private var swipeArrowLeft: ImageView? = null
+    private var swipeArrowRight: ImageView? = null
     private var shortcutDragDownRawX = 0f
     private var shortcutDragDownRawY = 0f
     private var shortcutDragStartRawX = 0f
@@ -335,6 +338,7 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
                 syncOrientationLayout()
             }
         }
+        setupSwipeIndicators()
     }
 
     private fun initStoresAndTabManager(savedInstanceState: Bundle?) {
@@ -870,6 +874,78 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
         return super.dispatchTouchEvent(event)
     }
 
+    /** 左右边缘的滑动指示箭头：只在手势进行中显示 */
+    private fun setupSwipeIndicators() {
+        swipeArrowLeft = buildSwipeArrow(R.drawable.ic_chevron_left, Gravity.START)
+        swipeArrowRight = buildSwipeArrow(R.drawable.ic_chevron_right, Gravity.END)
+        swipeArrowLeft?.let { rootView.addView(it) }
+        swipeArrowRight?.let { rootView.addView(it) }
+    }
+
+    private fun buildSwipeArrow(iconRes: Int, gravity: Int): ImageView {
+        val background = GradientDrawable().apply {
+            setColor(0xB3000000.toInt())
+            cornerRadius = dpSize(12).toFloat()
+        }
+        return ImageView(this).apply {
+            setImageResource(iconRes)
+            setColorFilter(Color.WHITE)
+            scaleType = ImageView.ScaleType.CENTER_INSIDE
+            setPadding(dpSize(7), dpSize(10), dpSize(7), dpSize(10))
+            setBackground(background)
+            alpha = 0f
+            visibility = View.GONE
+            layoutParams = FrameLayout.LayoutParams(
+                dpSize(40),
+                dpSize(76),
+                gravity or Gravity.CENTER_VERTICAL
+            ).apply {
+                marginStart = dpSize(4)
+                marginEnd = dpSize(4)
+            }
+        }
+    }
+
+    private fun showSwipeArrow(back: Boolean, progress: Float) {
+        val show = if (back) swipeArrowLeft else swipeArrowRight
+        val hide = if (back) swipeArrowRight else swipeArrowLeft
+        hide?.let {
+            it.visibility = View.GONE
+            it.alpha = 0f
+        }
+        show?.let {
+            if (it.visibility != View.VISIBLE) {
+                it.visibility = View.VISIBLE
+                it.alpha = 0f
+            }
+            it.alpha = 0.35f + 0.65f * progress.coerceIn(0f, 1f)
+        }
+    }
+
+    private fun hideSwipeArrows() {
+        swipeArrowLeft?.let {
+            it.visibility = View.GONE
+            it.alpha = 0f
+        }
+        swipeArrowRight?.let {
+            it.visibility = View.GONE
+            it.alpha = 0f
+        }
+    }
+
+    private fun insideWebContainer(event: MotionEvent): Boolean {
+        val loc = IntArray(2)
+        webContainer.getLocationOnScreen(loc)
+        val x = event.rawX
+        val y = event.rawY
+        return x >= loc[0] && x <= loc[0] + webContainer.width &&
+            y >= loc[1] && y <= loc[1] + webContainer.height
+    }
+
+    /**
+     * 全屏横向滑动前进后退：不再限制必须从边缘起手。
+     * 向右滑显示左边缘箭头并后退，向左滑显示右边缘箭头并前进。
+     */
     private fun handleEdgeSwipeNav(event: MotionEvent) {
         if (!browserPrefs.swipeNavEnabled) return
         val tab = tabManager.currentTab ?: return
@@ -878,40 +954,55 @@ class MainActivity : Activity(), HttpsUpgradeCallback {
             menuController.allMenuView == null && tabSwitcherView == null
         if (!onWeb) {
             swipeNavTracking = false
+            hideSwipeArrows()
             return
         }
-        val edgeZone = dpSize(28).toFloat()
-        val threshold = dpSize(68).toFloat()
+        val threshold = dpSize(64).toFloat()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                val w = rootView.width.toFloat()
-                val x = event.rawX
                 swipeNavTriggered = false
-                swipeNavTracking = x <= edgeZone || (w > 0f && x >= w - edgeZone)
-                swipeNavStartX = x
+                swipeNavTracking = insideWebContainer(event)
+                swipeNavStartX = event.rawX
                 swipeNavStartY = event.rawY
+                hideSwipeArrows()
             }
             MotionEvent.ACTION_MOVE -> {
                 if (!swipeNavTracking || swipeNavTriggered) return
+                if (event.pointerCount > 1) {
+                    swipeNavTracking = false
+                    hideSwipeArrows()
+                    return
+                }
                 val dx = event.rawX - swipeNavStartX
                 val dy = event.rawY - swipeNavStartY
-                if (kotlin.math.abs(dx) > threshold && kotlin.math.abs(dx) > kotlin.math.abs(dy) * 1.6f) {
-                    val w = rootView.width.toFloat()
-                    if (swipeNavStartX <= edgeZone && dx > 0f && tab.webView.canGoBack()) {
-                        swipeNavTriggered = true
-                        Haptics.tap(webContainer)
+                if (abs(dx) < dpSize(10).toFloat() || abs(dx) < abs(dy) * 1.4f) return
+                val back = dx > 0f
+                val canNavigate = if (back) tab.webView.canGoBack() else tab.webView.canGoForward()
+                if (!canNavigate) {
+                    hideSwipeArrows()
+                    return
+                }
+                showSwipeArrow(back, abs(dx) / threshold)
+                if (abs(dx) > threshold && abs(dx) > abs(dy) * 1.6f) {
+                    swipeNavTriggered = true
+                    showSwipeArrow(back, 1f)
+                    Haptics.tap(webContainer)
+                    if (back) {
                         BackNoReload.prepare(this, tab.webView)
                         tab.webView.goBack()
-                    } else if (w > 0f && swipeNavStartX >= w - edgeZone && dx < 0f && tab.webView.canGoForward()) {
-                        swipeNavTriggered = true
-                        Haptics.tap(webContainer)
+                    } else {
                         tab.webView.goForward()
                     }
                 }
             }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                swipeNavTracking = false
+                hideSwipeArrows()
+            }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 swipeNavTracking = false
                 swipeNavTriggered = false
+                hideSwipeArrows()
             }
         }
     }

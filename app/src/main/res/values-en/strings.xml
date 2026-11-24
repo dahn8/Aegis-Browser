@@ -167,10 +167,14 @@
     <string name="update_latest">Already up to date (%1$s)</string>
     <string name="update_found_title">New version %1$s available</string>
     <string name="update_found_message">Current version %1$s\n\n%2$s</string>
-    <string name="update_download">Download</string>
+    <string name="update_download">Update now</string>
     <string name="update_later">Later</string>
     <string name="update_check_failed">Update check failed. Check your network and try again.</string>
     <string name="update_no_browser">No app available to open the download page.</string>
+    <string name="update_downloading_title">Downloading update</string>
+    <string name="update_downloading_message">%1$d%% downloaded</string>
+    <string name="update_download_failed">Update download failed. Try again later.</string>
+    <string name="update_install_failed">Unable to launch the installer.</string>
     <string name="ua_hint">Open pages reload automatically after switching UA.</string>
     <string name="pc_to_mobile_hint">Only applies when UA is set to Computer: squeezes desktop pages back to phone width.</string>
 
@@ -452,7 +456,7 @@
     <string name="group_gestures">Gestures &amp; scrolling</string>
     <string name="group_media_keyboard">Player &amp; keyboard</string>
     <string name="swipe_nav_enabled">Swipe screen to go back/forward</string>
-    <string name="swipe_nav_desc">Swipe inward from the left or right edge of a webpage</string>
+    <string name="swipe_nav_desc">Swipe horizontally anywhere on a webpage to go back or forward; arrows appear at the edges</string>
     <string name="volume_key_page_turn">Use volume keys to scroll</string>
     <string name="volume_key_page_turn_desc">Press volume up/down to scroll pages smoothly</string>
     <string name="video_player_gestures">Video player gestures</string>
@@ -468,6 +472,13 @@ Ctrl + F: Find in page
 Ctrl + L: Focus address bar
 Ctrl + Shift + N: Toggle InPrivate
 Alt + Left/Right: Back / Forward</string>
+    <string name="shortcut_new_tab">New tab</string>
+    <string name="shortcut_close_tab">Close current tab</string>
+    <string name="shortcut_refresh">Reload page</string>
+    <string name="shortcut_find">Find in page</string>
+    <string name="shortcut_focus_address">Focus address bar</string>
+    <string name="shortcut_incognito">Toggle InPrivate</string>
+    <string name="shortcut_back_forward">Back / Forward</string>
     <string name="rules_subscriptions">Filter subscriptions</string>
     <string name="rules_sub_count">%d subscribed</string>
     <string name="rules_sub_add_custom">Add custom subscription</string>

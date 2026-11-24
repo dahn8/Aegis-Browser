@@ -13,8 +13,8 @@ android {
         applicationId = "dev.aegis.browser"
         minSdk = 26
         targetSdk = 35
-        versionCode = 138
-        versionName = "0.9.18"
+        versionCode = 139
+        versionName = "0.9.19"
     }
 
     signingConfigs {

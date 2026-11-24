@@ -137,6 +137,11 @@
             android:name=".settings.ActionSettingsActivity"
             android:exported="false" />
         <activity
+            android:name=".settings.KeyboardShortcutsActivity"
+            android:exported="false"
+            android:label="@string/keyboard_shortcuts_help"
+            android:theme="@style/Theme.Aegis.Settings" />
+        <activity
             android:name=".settings.SettingsActivity"
             android:exported="false"
             android:label="@string/settings"
@@ -159,6 +164,12 @@
             android:exported="false"
             android:label="@string/sniff"
             android:theme="@style/Theme.Aegis.Settings" />
+
+        <provider
+            android:name=".settings.UpdateFileProvider"
+            android:authorities="${applicationId}.updates"
+            android:exported="false"
+            android:grantUriPermissions="true" />
 
     </application>
 </manifest>
