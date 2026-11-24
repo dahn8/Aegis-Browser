@@ -1,0 +1,5 @@
+0.9.18
+- First release signed with the production key (versionCode 138)
+- New Check for updates in Settings > About, with GitHub API and Atom fallback
+- Removed F-Droid submission materials; GitHub Releases is the only distribution channel
+- Release workflow now builds assembleRelease and verifies the production signature

@@ -62,11 +62,13 @@
 # Debug APK
 ./gradlew :app:assembleDebug
 
-# Release APK（需自行配置签名）
+# Release APK（需配置签名，见下）
 ./gradlew :app:assembleRelease
 ```
 
 产物路径：`app/build/outputs/apk/`。
+
+Release 签名通过环境变量 `AEGIS_KEYSTORE_PATH`、`AEGIS_KEYSTORE_PASSWORD`、`AEGIS_KEY_ALIAS`、`AEGIS_KEY_PASSWORD` 注入；本地也可在仓库根目录创建 `keystore.properties`（`storeFile`、`storePassword`、`keyAlias`、`keyPassword`、`storeType=PKCS12`），该文件已被 `.gitignore` 排除。
 
 ## M1 已完成（浏览内核）
 
@@ -113,8 +115,7 @@
 - Referrer 收紧：页面级注入 `strict-origin-when-cross-origin`，跨站请求只带源
 - 拦截记录页：最近 200 条命中域名、来源页面与时间，误伤可一键加入白名单
 - 无痕零落盘：不写入最后访问地址、不保存标签会话，退出与销毁时统一清理
-- 自动发布：推送 `v*` 标签触发 `Release APK` 工作流，自动编译并创建 GitHub Release（v0.9.17 已发布）
-- F-Droid：`fastlane` 元数据与 `fdroiddata` metadata 已就绪，正式提交待 GitLab 账号验证
+- 自动发布：推送 `v*` 标签触发 `Release APK` 工作流，使用正式签名密钥编译并创建 GitHub Release
 - 五项验收清单见 [`docs/M6-隐私自检.md`](docs/M6-隐私自检.md)
 
 ## 应用内检查更新
@@ -123,8 +124,8 @@
 
 ## 后续计划
 
-- F-Droid 正式提交（待 GitLab 账号验证）
-- 生成正式签名 keystore，版本推进到 0.9.18
+- 体验与性能持续优化
+- 更多隐私增强能力按需评估
 
 ## 许可证
 

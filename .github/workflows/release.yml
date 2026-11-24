@@ -1,7 +1,7 @@
 name: Release APK
 
 # 打 v* 标签即出包并发布 GitHub Release：
-#   git tag v0.9.16 && git push origin v0.9.16
+#   git tag v0.9.18 && git push origin v0.9.18
 on:
   push:
     tags:
@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '版本号（如 v0.9.16），留空则用短 commit'
+        description: '版本号（如 v0.9.18），留空则用短 commit'
         required: false
         default: ''
 
@@ -36,8 +36,23 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build Debug APK
-        run: ./gradlew :app:assembleDebug --stacktrace
+      - name: Decode signing keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.AEGIS_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "::error::AEGIS_KEYSTORE_BASE64 secret is missing"
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/aegis-release.p12"
+          echo "AEGIS_KEYSTORE_PATH=$RUNNER_TEMP/aegis-release.p12" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK
+        env:
+          AEGIS_KEYSTORE_PASSWORD: ${{ secrets.AEGIS_KEYSTORE_PASSWORD }}
+          AEGIS_KEY_ALIAS: ${{ secrets.AEGIS_KEY_ALIAS }}
+          AEGIS_KEY_PASSWORD: ${{ secrets.AEGIS_KEY_PASSWORD }}
+        run: ./gradlew :app:assembleRelease --stacktrace
 
       - name: Resolve version and rename APK
         id: apk
@@ -51,10 +66,23 @@ jobs:
             fi
           fi
           OUT="Aegis-Browser-${VERSION}.apk"
-          cp app/build/outputs/apk/debug/app-debug.apk "$OUT"
+          cp app/build/outputs/apk/release/app-release.apk "$OUT"
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "path=$OUT" >> "$GITHUB_OUTPUT"
           ls -lh "$OUT"
+
+      - name: Verify APK signature
+        run: |
+          APK="${{ steps.apk.outputs.path }}"
+          APKSIGNER="$(command -v apksigner || true)"
+          if [ -z "$APKSIGNER" ] && [ -n "$ANDROID_HOME" ]; then
+            APKSIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner 2>/dev/null | tail -1)"
+          fi
+          if [ -n "$APKSIGNER" ]; then
+            "$APKSIGNER" verify --print-certs "$APK"
+          else
+            echo "apksigner not found, skip signature verification"
+          fi
 
       - name: Create GitHub Release
         if: github.ref_type == 'tag'
@@ -62,7 +90,7 @@ jobs:
         with:
           name: Aegis Browser ${{ steps.apk.outputs.version }}
           tag_name: ${{ github.ref_name }}
-          body_path: docs/release-notes-0.9.17.md
+          body_path: docs/release-notes-0.9.18.md
           files: ${{ steps.apk.outputs.path }}
           generate_release_notes: false
           make_latest: true

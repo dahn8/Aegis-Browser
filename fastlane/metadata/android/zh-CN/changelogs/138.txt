@@ -1,0 +1,5 @@
+0.9.18
+- 首个正式签名版本，versionCode 138
+- 设置-关于新增检查更新，支持 GitHub API 与 Atom 回退
+- 移除 F-Droid 提交材料，统一由 GitHub Releases 分发
+- 发布工作流改为 assembleRelease 并校验正式签名
